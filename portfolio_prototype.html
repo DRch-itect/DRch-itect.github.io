@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Architecture & Strategy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #fff;
+            background: #000;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Main container */
+        .portfolio-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Background image layers */
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            z-index: -1;
+        }
+
+        .background-layer.active {
+            opacity: 0.7;
+        }
+
+        .background-layer img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(20%) brightness(0.4);
+        }
+
+        /* Floating images */
+        .floating-image {
+            position: absolute;
+            opacity: 0;
+            transition: all 1.5s ease;
+            z-index: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .floating-image.visible {
+            opacity: 0.3;
+        }
+
+        .floating-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(40%) brightness(0.6);
+        }
+
+        /* Header section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 80px 60px;
+            position: relative;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+        }
+
+        .header h1 {
+            font-size: clamp(4rem, 12vw, 8rem);
+            font-weight: 100;
+            letter-spacing: -3px;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1.5s ease forwards 0.5s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .header .subtitle {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 200;
+            color: rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInUp 1.5s ease forwards 0.8s;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Project sections */
+        .project-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 60px;
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 1s ease;
+        }
+
+        .project-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Frosted glass content areas */
+        .content-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 60px;
+            margin: 20px 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .project-header {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .project-info h2 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 100;
+            margin-bottom: 40px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .project-info h2:hover {
+            color: rgba(255, 255, 255, 0.7);
+            transform: translateX(10px);
+        }
+
+        .project-meta {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            font-weight: 200;
+            letter-spacing: 1px;
+        }
+
+        .project-description {
+            font-size: 1.3rem;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+        }
+
+        /* Animated GIF thumbnails */
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 15px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .thumbnail-container:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(255, 255, 255, 0.1);
+        }
+
+        .thumbnail-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            filter: grayscale(0%) brightness(0.9);
+        }
+
+        .thumbnail-image.active {
+            opacity: 1;
+        }
+
+        .thumbnail-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 30px;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+
+        .thumbnail-container:hover .thumbnail-overlay {
+            transform: translateY(0);
+        }
+
+        .thumbnail-overlay .title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* Story sections with floating layout */
+        .project-story {
+            margin-top: 100px;
+            position: relative;
+        }
+
+        .story-block {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 50px;
+            margin: 60px 0;
+            max-width: 70%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-block:nth-child(even) {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .story-block h3 {
+            font-size: 1.8rem;
+            font-weight: 200;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .story-block p {
+            font-size: 1.2rem;
+            line-height: 1.9;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+        }
+
+        /* Navigation dots */
+        .nav-dots {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-dot.active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .project-header {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .content-glass {
+                padding: 40px 30px;
+            }
+            
+            .header, .project-section {
+                padding: 80px 30px;
+            }
+            
+            .story-block {
+                max-width: 95%;
+                padding: 30px;
+            }
+            
+            .nav-dots {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 1.5s ease forwards 2.5s;
+        }
+
+        .loading-text {
+            font-size: 1.5rem;
+            font-weight: 100;
+            letter-spacing: 5px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loading">
+        <div class="loading-text">PORTFOLIO</div>
+    </div>
+
+    <!-- Background image layers -->
+    <div class="background-layer active" id="bg-0">
+        <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&h=1080&fit=crop" alt="Background">
+    </div>
+    <div class="background-layer" id="bg-1">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=1080&fit=crop" alt="Background">
+    </div>
+    <div class="background-layer" id="bg-2">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1920&h=1080&fit=crop" alt="Background">
+    </div>
+    <div class="background-layer" id="bg-3">
+        <img src="https://images.unsplash.com/photo-1519999482648-25049ddd37b1?w=1920&h=1080&fit=crop" alt="Background">
+    </div>
+
+    <!-- Floating images -->
+    <div class="floating-image" style="width: 300px; height: 200px; top: 20%; right: 10%; transform: rotate(-5deg);">
+        <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&h=300&fit=crop" alt="Floating">
+    </div>
+    <div class="floating-image" style="width: 250px; height: 300px; top: 60%; left: 15%; transform: rotate(3deg);">
+        <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=350&h=400&fit=crop" alt="Floating">
+    </div>
+    <div class="floating-image" style="width: 280px; height: 180px; top: 40%; left: 70%; transform: rotate(-2deg);">
+        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&h=250&fit=crop" alt="Floating">
+    </div>
+
+    <!-- Navigation dots -->
+    <div class="nav-dots">
+        <div class="nav-dot active" data-section="0"></div>
+        <div class="nav-dot" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+    </div>
+
+    <div class="portfolio-container">
+        <!-- Header Section -->
+        <section class="header" id="section-0">
+            <h1>Your Name</h1>
+            <p class="subtitle">Architecture × Strategy × Storytelling</p>
+        </section>
+
+        <!-- Project 1 -->
+        <section class="project-section" id="section-1">
+            <div class="content-glass">
+                <div class="project-header">
+                    <div class="project-info">
+                        <h2>Urban Revitalization</h2>
+                        <div class="project-meta">
+                            STRATEGY • 2024 • SAN FRANCISCO
+                        </div>
+                        <div class="project-description">
+                            A comprehensive strategy for transforming underutilized urban spaces into vibrant community hubs. This project explores the intersection of architectural intervention and social impact through deep community engagement.
+                        </div>
+                    </div>
+                    <div class="thumbnail-container">
+                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop" 
+                             alt="Urban 1" class="thumbnail-image active">
+                        <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop" 
+                             alt="Urban 2" class="thumbnail-image">
+                        <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=800&h=600&fit=crop" 
+                             alt="Urban 3" class="thumbnail-image">
+                        <div class="thumbnail-overlay">
+                            <div class="title">VIEW PROJECT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="project-story">
+                <div class="story-block">
+                    <h3>The Question</h3>
+                    <p>Every great project begins with a question. In this case, it was: How do we breathe life back into forgotten urban corners? The journey started with endless site visits, conversations with locals, and mapping the invisible networks that make neighborhoods tick.</p>
+                </div>
+                <div class="story-block">
+                    <h3>The Discovery</h3>
+                    <p>What emerged was a strategy that went beyond buildings—it was about creating catalysts for community connection. The architecture became secondary to the social architecture we were really designing. People needed gathering spaces, not just buildings.</p>
+                </div>
+                <div class="story-block">
+                    <h3>The Impact</h3>
+                    <p>Six months post-implementation, foot traffic increased 340%, local businesses reported 60% higher engagement, and the community successfully organized three major cultural events. The space didn't just change—it came alive.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project 2 -->
+        <section class="project-section" id="section-2">
+            <div class="content-glass">
+                <div class="project-header">
+                    <div class="project-info">
+                        <h2>Industrial Memory</h2>
+                        <div class="project-meta">
+                            ADAPTIVE REUSE • 2024 • CHICAGO
+                        </div>
+                        <div class="project-description">
+                            An investigation into how industrial structures can be reimagined for contemporary use while preserving their essential character and contributing to neighborhood identity through material storytelling.
+                        </div>
+                    </div>
+                    <div class="thumbnail-container">
+                        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop" 
+                             alt="Industrial 1" class="thumbnail-image active">
+                        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&h=600&fit=crop" 
+                             alt="Industrial 2" class="thumbnail-image">
+                        <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop" 
+                             alt="Industrial 3" class="thumbnail-image">
+                        <div class="thumbnail-overlay">
+                            <div class="title">VIEW PROJECT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="project-story">
+                <div class="story-block">
+                    <h3>Reading the Bones</h3>
+                    <p>Industrial buildings hold stories in their bones—decades of work, production, and human activity. The challenge wasn't just about structural adaptation, but about honoring that history while creating space for new narratives to unfold.</p>
+                </div>
+                <div class="story-block">
+                    <h3>Material Conversations</h3>
+                    <p>We let the existing materials guide us. Exposed brick talked to new steel. Original timber beams supported contemporary glass insertions. Each intervention was a dialogue between past and future, mediated through careful material choices.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project 3 -->
+        <section class="project-section" id="section-3">
+            <div class="content-glass">
+                <div class="project-header">
+                    <div class="project-info">
+                        <h2>Democratic Space</h2>
+                        <div class="project-meta">
+                            PUBLIC STRATEGY • 2023 • NEW YORK
+                        </div>
+                        <div class="project-description">
+                            A strategic framework for creating more inclusive and accessible public spaces that respond to diverse community needs while addressing climate challenges and social equity simultaneously.
+                        </div>
+                    </div>
+                    <div class="thumbnail-container">
+                        <img src="https://images.unsplash.com/photo-1519999482648-25049ddd37b1?w=800&h=600&fit=crop" 
+                             alt="Public 1" class="thumbnail-image active">
+                        <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop" 
+                             alt="Public 2" class="thumbnail-image">
+                        <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop" 
+                             alt="Public 3" class="thumbnail-image">
+                        <div class="thumbnail-overlay">
+                            <div class="title">VIEW PROJECT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="project-story">
+                <div class="story-block">
+                    <h3>Democracy in Physical Form</h3>
+                    <p>Public space is democracy in physical form. This project emerged from observing how different communities use shared spaces differently, and how design can either include or exclude with seemingly innocent choices.</p>
+                </div>
+                <div class="story-block">
+                    <h3>Beyond Aesthetics</h3>
+                    <p>The strategy we developed goes beyond aesthetic considerations to address equity, accessibility, and environmental resilience. It's being implemented across multiple sites, creating a network of truly public spaces that serve everyone.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Background and section management
+        const sections = document.querySelectorAll('.project-section');
+        const navDots = document.querySelectorAll('.nav-dot');
+        const backgroundLayers = document.querySelectorAll('.background-layer');
+        const floatingImages = document.querySelectorAll('.floating-image');
+        
+        // Thumbnail cycling for each project
+        const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+        
+        thumbnailContainers.forEach(container => {
+            const images = container.querySelectorAll('.thumbnail-image');
+            let currentIndex = 0;
+            
+            setInterval(() => {
+                images[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % images.length;
+                images[currentIndex].classList.add('active');
+            }, 3000); // Change every 3 seconds
+        });
+
+        // Intersection Observer for sections
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Update navigation and backgrounds
+                    const sectionIndex = entry.target.id.split('-')[1];
+                    
+                    // Update nav dots
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    if (navDots[sectionIndex]) {
+                        navDots[sectionIndex].classList.add('active');
+                    }
+                    
+                    // Update background layers
+                    backgroundLayers.forEach(bg => bg.classList.remove('active'));
+                    const targetBg = document.getElementById(`bg-${sectionIndex}`);
+                    if (targetBg) {
+                        targetBg.classList.add('active');
+                    }
+                }
+            });
+        }, { threshold: 0.4 });
+
+        // Observe all sections including header
+        sections.forEach(section => observer.observe(section));
+        observer.observe(document.querySelector('.header'));
+
+        // Navigation dot clicks
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                const targetSection = document.getElementById(`section-${index}`);
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Floating images parallax effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.5;
+            
+            floatingImages.forEach((img, index) => {
+                const speed = 0.3 + (index * 0.1);
+                img.style.transform = `translateY(${scrolled * speed}px) rotate(${img.style.transform.match(/rotate\([^)]*\)/)?.[0] || '0deg'})`;
+            });
+            
+            // Show floating images after header
+            if (scrolled > window.innerHeight * 0.3) {
+                floatingImages.forEach(img => img.classList.add('visible'));
+            }
+        });
+
+        // Project interactions
+        document.querySelectorAll('.thumbnail-container').forEach(container => {
+            container.addEventListener('click', () => {
+                // Navigate to individual project page
+                console.log('Navigate to project detail page');
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const currentSection = document.querySelector('.nav-dot.active');
+            const currentIndex = Array.from(navDots).indexOf(currentSection);
+            
+            if (e.key === 'ArrowDown' && currentIndex < navDots.length - 1) {
+                navDots[currentIndex + 1].click();
+            } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+                navDots[currentIndex - 1].click();
+            }
+        });
+
+        // Enhanced hover effects for project titles
+        document.querySelectorAll('.project-info h2').forEach(title => {
+            title.addEventListener('mouseenter', () => {
+                title.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.5)';
+            });
+            
+            title.addEventListener('mouseleave', () => {
+                title.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.8)';
+            });
+        });
+    </script>
+</body>
+</html>
