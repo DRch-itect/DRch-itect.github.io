@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio - Architecture & Strategy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,10 +14,10 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
-            color: #fff;
-            background: #000;
+            color: #2a2a2a;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             overflow-x: hidden;
         }
 
@@ -42,14 +44,14 @@
         }
 
         .background-layer.active {
-            opacity: 0.7;
+            opacity: 0.15;
         }
 
         .background-layer img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: grayscale(20%) brightness(0.4);
+            filter: grayscale(60%) brightness(1.2) contrast(0.8);
         }
 
         /* Floating images */
@@ -58,18 +60,20 @@
             opacity: 0;
             transition: all 1.5s ease;
             z-index: 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .floating-image.visible {
-            opacity: 0.3;
+            opacity: 0.2;
         }
 
         .floating-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: grayscale(40%) brightness(0.6);
+            filter: grayscale(70%) brightness(1.1) contrast(0.7);
         }
 
         /* Header section */
@@ -82,27 +86,28 @@
             padding: 80px 60px;
             position: relative;
             z-index: 10;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(2px);
+            background: rgba(248, 249, 250, 0.8);
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
             font-size: clamp(4rem, 12vw, 8rem);
-            font-weight: 100;
+            font-weight: 200;
             letter-spacing: -3px;
             margin-bottom: 30px;
             opacity: 0;
             animation: fadeInUp 1.5s ease forwards 0.5s;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #1a1a1a;
         }
 
         .header .subtitle {
             font-size: clamp(1.4rem, 4vw, 2.2rem);
-            font-weight: 200;
-            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            color: #555;
             opacity: 0;
             animation: fadeInUp 1.5s ease forwards 0.8s;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         /* Project sections */
@@ -126,13 +131,13 @@
 
         /* Frosted glass content areas */
         .content-glass {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 20px;
             padding: 60px;
             margin: 20px 0;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .project-header {
@@ -144,31 +149,32 @@
 
         .project-info h2 {
             font-size: clamp(3rem, 8vw, 5rem);
-            font-weight: 100;
+            font-weight: 200;
             margin-bottom: 40px;
             cursor: pointer;
             transition: all 0.4s ease;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #1a1a1a;
         }
 
         .project-info h2:hover {
-            color: rgba(255, 255, 255, 0.7);
+            color: #4a4a4a;
             transform: translateX(10px);
         }
 
         .project-meta {
             font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.6);
+            color: #666;
             margin-bottom: 40px;
-            font-weight: 200;
+            font-weight: 300;
             letter-spacing: 1px;
         }
 
         .project-description {
             font-size: 1.3rem;
             line-height: 1.9;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 300;
+            color: #333;
+            font-weight: 400;
         }
 
         /* Animated GIF thumbnails */
@@ -179,14 +185,14 @@
             overflow: hidden;
             border-radius: 15px;
             cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(0, 0, 0, 0.15);
             transition: all 0.5s ease;
         }
 
         .thumbnail-container:hover {
             transform: scale(1.05);
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 20px 60px rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
 
         .thumbnail-image {
@@ -196,7 +202,7 @@
             object-fit: cover;
             opacity: 0;
             transition: opacity 1.5s ease;
-            filter: grayscale(0%) brightness(0.9);
+            filter: grayscale(0%) brightness(1.1) contrast(1.1);
         }
 
         .thumbnail-image.active {
@@ -221,7 +227,7 @@
         .thumbnail-overlay .title {
             color: white;
             font-size: 1.1rem;
-            font-weight: 300;
+            font-weight: 400;
             letter-spacing: 2px;
         }
 
@@ -232,14 +238,14 @@
         }
 
         .story-block {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 15px;
             padding: 50px;
             margin: 60px 0;
             max-width: 70%;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .story-block:nth-child(even) {
@@ -249,17 +255,17 @@
 
         .story-block h3 {
             font-size: 1.8rem;
-            font-weight: 200;
+            font-weight: 400;
             margin-bottom: 25px;
-            color: rgba(255, 255, 255, 0.9);
+            color: #2a2a2a;
         }
 
         .story-block p {
             font-size: 1.2rem;
             line-height: 1.9;
             margin-bottom: 25px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 300;
+            color: #444;
+            font-weight: 400;
         }
 
         /* Navigation dots */
@@ -275,17 +281,17 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
             margin: 20px 0;
             cursor: pointer;
             transition: all 0.4s ease;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.4);
         }
 
         .nav-dot.active {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.8);
             transform: scale(1.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
         }
 
         /* Responsive design */
@@ -325,7 +331,7 @@
             }
         }
 
-        /* Loading animation */
+        /* Loading animation - keeping the dark theme here */
         .loading {
             position: fixed;
             top: 0;
@@ -623,11 +629,11 @@
         // Enhanced hover effects for project titles
         document.querySelectorAll('.project-info h2').forEach(title => {
             title.addEventListener('mouseenter', () => {
-                title.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.5)';
+                title.style.textShadow = '0 0 20px rgba(0, 0, 0, 0.2)';
             });
             
             title.addEventListener('mouseleave', () => {
-                title.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.8)';
+                title.style.textShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
             });
         });
     </script>
